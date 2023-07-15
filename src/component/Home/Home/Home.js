@@ -2,13 +2,22 @@ import React, { useContext, useState } from "react";
 import { FoodContext } from "../../../context/FoodContext";
 import { HomeList } from "./HomeList";
 import { Search } from "../Serach/Search";
+import { AddRecipeModal } from "../RecipeModal/RecipeModal";
 
 export const Home = () => {
-  const { state } = useContext(FoodContext);
+  const { state, dispatch } = useContext(FoodContext);
   const [searchCategory, setSearchCategory] = useState("name");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
-  const filteredRecipes = state.recipe.filter((food) => {
+  console.log(state);
+
+  const recipeData = JSON.parse(localStorage.getItem("recipe"));
+
+  // Use recipeData if available, otherwise use state.recipe
+  const recipes = recipeData ? recipeData : state.recipe;
+
+  const filteredRecipes = recipes.filter((food) => {
     if (searchCategory === "name") {
       return food.name.toLowerCase().includes(searchQuery.toLowerCase());
     } else if (searchCategory === "ingredients") {
@@ -21,6 +30,11 @@ export const Home = () => {
     return false;
   });
 
+  const handleSaveRecipe = (newRecipe) => {
+    dispatch({ type: "ADD_RECIPE", payload: newRecipe });
+    setShowModal(false); // Close the modal after saving the recipe
+  };
+
   return (
     <div className="food">
       <Search
@@ -29,11 +43,16 @@ export const Home = () => {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
+
       <div className="food-list">
         {filteredRecipes.map((food) => (
           <HomeList food={food} key={food.id} />
         ))}
       </div>
+
+      <button onClick={() => setShowModal(true)}>Add Recipe</button>
+
+      {showModal && <AddRecipeModal onSave={handleSaveRecipe} />}
     </div>
   );
 };

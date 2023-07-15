@@ -15,7 +15,7 @@ export const Search = ({
   };
 
   return (
-    <form>
+    <form style={{ display: "flex", flexDirection: "row-reverse" }}>
       <div>
         <label>
           <input

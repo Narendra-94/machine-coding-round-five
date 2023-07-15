@@ -1,80 +1,99 @@
-import React from "react";
+import React, { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import "./RecipeModal.css";
 
-const RecipeModal = ({
-  recipe,
-  handleClose,
-  handleRecipeChange,
-  handleIngredientChange,
-  handleInstructionChange,
-  handleAddIngredient,
-  handleAddInstruction,
-  handleSaveRecipe,
-}) => {
+export const AddRecipeModal = ({ onSave }) => {
+  const [recipeName, setRecipeName] = useState("");
+  const [ingredients, setIngredients] = useState("");
+  const [instructions, setInstructions] = useState("");
+  const [cuisineType, setCuisineType] = useState("");
+  const [image, setImage] = useState(null);
+  const [showModal, setShowModal] = useState(true);
+
+  const handleSave = () => {
+    const newRecipe = {
+      id: uuidv4(),
+      name: recipeName,
+      ingredients: ingredients.split(","),
+      instructions: instructions.split(","),
+      cuisine: cuisineType,
+      image: image ? URL.createObjectURL(image) : null, // Create a URL for the uploaded image
+    };
+
+    onSave(newRecipe);
+
+    setRecipeName("");
+    setIngredients("");
+    setInstructions("");
+    setCuisineType("");
+    setImage(null);
+    setShowModal(false);
+  };
+
+  const handleImageUpload = (e) => {
+    const selectedImage = e.target.files[0];
+    setImage(selectedImage);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
   return (
-    <div className="modal">
+    <div className={`modal ${showModal ? "show" : ""}`}>
       <div className="modal-content">
-        <div className="modal-header">
-          <h2 className="modal-title">Add Recipe</h2>
-          <span className="modal-close" onClick={handleClose}>
-            &times;
-          </span>
-        </div>
-        <div className="modal-body">
-          <div className="form-group">
-            <label htmlFor="name">Name:</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={recipe.name}
-              onChange={handleRecipeChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="ingredients">Ingredients:</label>
-            {recipe.ingredients.map((ingredient, index) => (
-              <input
-                type="text"
-                key={index}
-                value={ingredient}
-                onChange={(event) => handleIngredientChange(event, index)}
-              />
-            ))}
-            <button className="add-button" onClick={handleAddIngredient}>
-              Add Ingredient
+        <h2>Add Recipe</h2>
+        <form>
+          <label htmlFor="recipeName">Recipe Name:</label>
+          <input
+            type="text"
+            id="recipeName"
+            value={recipeName}
+            onChange={(e) => setRecipeName(e.target.value)}
+          />
+
+          <label htmlFor="ingredients">Ingredients:</label>
+          <input
+            type="text"
+            id="ingredients"
+            value={ingredients}
+            onChange={(e) => setIngredients(e.target.value)}
+          />
+
+          <label htmlFor="instructions">Cooking Instructions:</label>
+          <input
+            type="text"
+            id="instructions"
+            value={instructions}
+            onChange={(e) => setInstructions(e.target.value)}
+          />
+
+          <label htmlFor="cuisineType">Cuisine Type:</label>
+          <input
+            type="text"
+            id="cuisineType"
+            value={cuisineType}
+            onChange={(e) => setCuisineType(e.target.value)}
+          />
+
+          <label htmlFor="recipeImage">Recipe Image:</label>
+          <input
+            type="file"
+            id="recipeImage"
+            accept="image/*"
+            onChange={handleImageUpload}
+          />
+
+          <div className="modal-buttons">
+            <button type="button" onClick={handleSave}>
+              Save
+            </button>
+            <button type="button" onClick={closeModal}>
+              Cancel
             </button>
           </div>
-          <div className="form-group">
-            <label htmlFor="instructions">Instructions:</label>
-            {recipe.instructions.map((instruction, index) => (
-              <textarea
-                key={index}
-                value={instruction}
-                onChange={(event) => handleInstructionChange(event, index)}
-              ></textarea>
-            ))}
-            <button className="add-button" onClick={handleAddInstruction}>
-              Add Instruction
-            </button>
-          </div>
-          <div className="form-group">
-            <label htmlFor="cuisine">Cuisine:</label>
-            <input
-              type="text"
-              id="cuisine"
-              name="cuisine"
-              value={recipe.cuisine}
-              onChange={handleRecipeChange}
-            />
-          </div>
-        </div>
-        <div className="form-actions">
-          <button onClick={handleSaveRecipe}>Save</button>
-          <button onClick={handleClose}>Cancel</button>
-        </div>
+        </form>
       </div>
     </div>
   );
 };
-
-export default RecipeModal;
